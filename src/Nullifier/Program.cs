@@ -28,6 +28,12 @@ internal sealed class Program
 					{
 						Console.WriteLine($"Analyzing {builder.Errors.Count} build errors.");
 						Fixer fixer = new(builder.Errors, arguments);
+						if (arguments.Summarize)
+						{
+							Summarizer summarizer = new(fixer.Problems, arguments);
+							summarizer.Summarize();
+						}
+
 						if (!fixer.Fix(out int updates))
 						{
 							Console.WriteLine($"No fixes were made out of {builder.Errors.Count} errors. {updates} potential fixes were found.");

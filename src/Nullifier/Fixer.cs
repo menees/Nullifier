@@ -31,16 +31,7 @@ internal sealed partial class Fixer
 	{
 		this.errors = errors;
 		this.arguments = arguments;
-	}
 
-	#endregion
-
-	#region Public Methods
-
-	public bool Fix(out int updates)
-	{
-		updates = 0;
-		bool result = false;
 		Regex regex = CreateErrorRegex();
 		List<Problem> problems = new(this.errors.Count);
 
@@ -67,9 +58,27 @@ internal sealed partial class Fixer
 			}
 		}
 
+		this.Problems = problems;
+	}
+
+	#endregion
+
+	#region Public Properties
+
+	public IReadOnlyList<Problem> Problems { get; }
+
+	#endregion
+
+	#region Public Methods
+
+	public bool Fix(out int updates)
+	{
+		updates = 0;
+		bool result = false;
+
 		// Fix the problems in file order so we can cache the current file lines as we make fixes.
 		string? currentFile = null;
-		foreach (Problem problem in problems.OrderBy(p => p.File).ThenBy(p => p.Line).ThenBy(p => p.Column))
+		foreach (Problem problem in this.Problems.OrderBy(p => p.File).ThenBy(p => p.Line).ThenBy(p => p.Column))
 		{
 			if (File.Exists(problem.File))
 			{
@@ -503,7 +512,7 @@ internal sealed partial class Fixer
 							Group typeGroup = argMatch.Groups["type"];
 							if (!typeGroup.Value.EndsWith("?", StringComparison.Ordinal)
 								&& nullArgs.Contains(argIndex)
-								&& this.MarkTypeNullableAndSetLine(problem, declarationLine, argMatch, argMatch.Groups["type"], lineIndex))
+								&& this.MarkTypeNullableAndSetLine(problem, declarationLine, argMatch, typeGroup, lineIndex))
 							{
 								result = true;
 							}

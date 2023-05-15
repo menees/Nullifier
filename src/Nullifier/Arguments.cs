@@ -24,7 +24,9 @@ internal sealed class Arguments
 
 	#region Public Properties
 
-	public string? Project { get; private set; }
+	public string? ProjectFile { get; private set; }
+
+	public string? ProjectDirectory { get; private set; }
 
 	public string? MSBuild { get; private set; }
 
@@ -33,6 +35,8 @@ internal sealed class Arguments
 	public bool Verbose { get; private set; }
 
 	public bool FixDataMembers { get; private set; }
+
+	public bool Summarize { get; private set; }
 
 	#endregion
 
@@ -47,9 +51,14 @@ internal sealed class Arguments
 
 		commandLine.AddValueHandler((value, errors) =>
 		{
-			if (File.Exists(value) || Directory.Exists(value))
+			if (Directory.Exists(value))
 			{
-				this.Project = value;
+				this.ProjectDirectory = value;
+			}
+			else if (File.Exists(value))
+			{
+				this.ProjectFile = value;
+				this.ProjectDirectory = Path.GetDirectoryName(value) ?? Environment.CurrentDirectory;
 			}
 			else
 			{
@@ -75,9 +84,11 @@ internal sealed class Arguments
 
 		commandLine.AddSwitch("fixDataMembers", "Whether fields and properties should be set to nullable.", value => this.FixDataMembers = value);
 
+		commandLine.AddSwitch("summarize", "Show summary of errors by file.", value => this.Summarize = value);
+
 		commandLine.AddFinalValidation(errors =>
 		{
-			if (this.Project.IsWhiteSpace())
+			if (this.ProjectDirectory.IsWhiteSpace())
 			{
 				errors.Add("A project must be specified.");
 			}

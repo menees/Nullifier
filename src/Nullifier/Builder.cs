@@ -51,18 +51,18 @@ internal sealed class Builder
 		{
 			Console.WriteLine("Unable to find MSBuild.");
 		}
-		else if (this.arguments.Project.IsWhiteSpace())
+		else if (this.arguments.ProjectDirectory.IsWhiteSpace())
 		{
 			Console.WriteLine("No project was specified.");
 		}
 		else
 		{
-			this.TryEnableNullable(this.arguments.Project);
+			this.TryEnableNullable(this.arguments.ProjectDirectory, this.arguments.ProjectFile);
 			string logFile = Path.GetTempFileName();
 			try
 			{
 				ProcessStartInfo start = new(msBuildPath) { UseShellExecute = false };
-				start.ArgumentList.Add(this.arguments.Project);
+				start.ArgumentList.Add(this.arguments.ProjectFile ?? this.arguments.ProjectDirectory);
 
 				// https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-command-line-reference#switches-for-loggers
 				start.ArgumentList.Add("-noConsoleLogger");
@@ -93,20 +93,20 @@ internal sealed class Builder
 
 	#region Private Methods
 
-	private void TryEnableNullable(string project)
+	private void TryEnableNullable(string projectDirectory, string? projectFile)
 	{
-		if (Directory.Exists(project))
+		if (Directory.Exists(projectDirectory) && projectFile.IsEmpty())
 		{
-			string[] projects = Directory.GetFiles(project, "*.csproj");
+			string[] projects = Directory.GetFiles(projectDirectory, "*.csproj");
 			if (projects.Length == 1)
 			{
-				project = projects[0];
+				projectFile = projects[0];
 			}
 		}
 
-		if (File.Exists(project))
+		if (File.Exists(projectFile))
 		{
-			XDocument document = XDocument.Load(project, LoadOptions.PreserveWhitespace);
+			XDocument document = XDocument.Load(projectFile, LoadOptions.PreserveWhitespace);
 			XElement? root = document.Root;
 			if (root != null)
 			{
@@ -140,8 +140,8 @@ internal sealed class Builder
 
 				if (modified)
 				{
-					string fileNameOnly = Path.GetFileName(project);
-					if (this.arguments.WhatIf || FileUtility.IsReadOnlyFile(project))
+					string fileNameOnly = Path.GetFileName(projectFile);
+					if (this.arguments.WhatIf || FileUtility.IsReadOnlyFile(projectFile))
 					{
 						Console.WriteLine($"Project file {fileNameOnly} needs to enable Nullable.");
 					}
@@ -149,7 +149,7 @@ internal sealed class Builder
 					{
 						// Don't add an XML declaration at the top when saving and preserve input formatting.
 						XmlWriterSettings settings = new() { OmitXmlDeclaration = true, Indent = false };
-						using XmlWriter writer = XmlWriter.Create(project, settings);
+						using XmlWriter writer = XmlWriter.Create(projectFile, settings);
 						document.Save(writer);
 						Console.WriteLine($"Project file {fileNameOnly} updated to enable Nullable.");
 					}
