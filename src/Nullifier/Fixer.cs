@@ -500,7 +500,8 @@ internal sealed partial class Fixer
 						argEx ??= CreateTypeVariableRegex();
 						foreach (Match argMatch in argEx.Matches(declarationLine, match.Groups["member"].Index).Cast<Match>())
 						{
-							if (!argMatch.Value.EndsWith("?", StringComparison.Ordinal)
+							Group typeGroup = argMatch.Groups["type"];
+							if (!typeGroup.Value.EndsWith("?", StringComparison.Ordinal)
 								&& nullArgs.Contains(argIndex)
 								&& this.MarkTypeNullableAndSetLine(problem, declarationLine, argMatch, argMatch.Groups["type"], lineIndex))
 							{
