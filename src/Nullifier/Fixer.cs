@@ -152,8 +152,8 @@ internal sealed partial class Fixer
 	[GeneratedRegex(@"(?n)^\s*((public|private|protected|internal|static|partial)\s*)+\s+(?<type>\w+(\[\]|<.+?>)?\??)\s+(?<member>\w+)(\(|$|\s)")]
 	private static partial Regex CreateMethodOrPropertyDeclarationRegex();
 
-	[GeneratedRegex(@"\.TryGetValue\(.*,\s*out\s+(?<type>\w+(\[\]|<.+?>)?)\s+.+?\)")]
-	private static partial Regex CreateTryGetValueOutRegex();
+	[GeneratedRegex(@"(?n)\(.*,\s*out\s+(?<type>\w+(\[\]|<.+?>)?)\s+.+?\)")]
+	private static partial Regex CreateOutParameterRegex();
 
 	[GeneratedRegex(@"(?n)(?<function>\w+)(<.+>)?(?<open>\().*?(?<null>null).*?(?<close>\))")]
 	private static partial Regex CreateFunctionCallWithNullArgRegex();
@@ -178,7 +178,7 @@ internal sealed partial class Fixer
 			case "CS8600": // Converting null literal or possible null value to non-nullable type
 				result = this.FixAssignNullToVariable(problem)
 						|| this.FixAssignFollowedByNullCheck(problem)
-						|| this.FixTryGetValueOut(problem);
+						|| this.FixOutParameter(problem);
 				break;
 
 			case "CS8603": // Possible null reference return
@@ -458,13 +458,13 @@ internal sealed partial class Fixer
 		return result;
 	}
 
-	private bool FixTryGetValueOut(Problem problem)
+	private bool FixOutParameter(Problem problem)
 	{
 		bool result = false;
 
 		if (this.GetLine(problem, out string? line))
 		{
-			Regex tryGetValueEx = CreateTryGetValueOutRegex();
+			Regex tryGetValueEx = CreateOutParameterRegex();
 			Match match = tryGetValueEx.Match(line);
 			if (match.Success)
 			{
