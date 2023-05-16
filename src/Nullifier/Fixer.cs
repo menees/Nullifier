@@ -107,52 +107,58 @@ internal sealed partial class Fixer
 	#endregion
 
 	#region Generated Regexes
+
+	/*
+	NOTE: To match a C# type name, we use the following sub-expressions throughout this file:
+		Non-Nullable:	(?<type>\w+(\[\]|<.+?>)?)
+		Nullable:			(?<type>\w+(\[\]|<.+?>)?\??)
+	*/
 #pragma warning disable MEN002 // Line is too long. It's ok for a GeneratedRegex attribute.
 
-	[GeneratedRegex(@"^(?n)(?<file>.+?)\((?<line>\d+),(?<column>\d+)\): (?<type>error|warning) (?<code>\w+): (?<message>.+?) \[(?<project>.+?)\]$")]
+	[GeneratedRegex(@"^(?n)(?<file>.+?)\((?<line>\d+),(?<column>\d+)\): (?<level>error|warning) (?<code>\w+): (?<message>.+?) \[(?<project>.+?)\]$")]
 	private static partial Regex CreateErrorRegex();
 
 	[GeneratedRegex(@"(?n)\s'(?<name>\w+)'\s")]
 	private static partial Regex CreateParameterNameReferenceRegex();
 
 	// Match a "Type variable = " with a direct null literal, a null from either side of a ternary operator, an "as" operator, or an XxxOrDefault() LINQ method.
-	[GeneratedRegex(@"(?n)(^|,|\()\s*(?<type>\w+(<.+?>)?)\s+\w+\s*=\s*(null|.*\?\s*null\s*:.*|.*\?.*:\s*null\s*|.*\s+as\s+.*|.*.(First|Single|Last)OrDefault\(.*\))(;$|,|\))")]
+	[GeneratedRegex(@"(?n)(^|,|\()\s*(?<type>\w+(\[\]|<.+?>)?)\s+\w+\s*=\s*(null|.*\?\s*null\s*:.*|.*\?.*:\s*null\s*|.*\s+as\s+.*|.*.(First|Single|Last)OrDefault\(.*\))(;$|,|\))")]
 	private static partial Regex CreateNullAssignmentRegex();
 
-	[GeneratedRegex(@"(?n)^\s*(?<type>\w+(<.+?>)?)\s+(?<variable>\w+)\s*=\s*.+;$")]
+	[GeneratedRegex(@"(?n)^\s*(?<type>\w+(\[\]|<.+?>)?)\s+(?<variable>\w+)\s*=\s*.+;$")]
 	private static partial Regex CreateVariableAssignmentRegex();
 
-	[GeneratedRegex(@"(?n)^\s*(?<type>\w+(<.+?>)?)\?\s+(?<variable>\w+)\s*(=\s*.+)?;$")]
+	[GeneratedRegex(@"(?n)^\s*(?<type>\w+(\[\]|<.+?>)?)\?\s+(?<variable>\w+)\s*(=\s*.+)?;$")]
 	private static partial Regex CreateNullableVariableDeclarationOrAssignmentRegex();
 
 	[GeneratedRegex(@"(?n)^\s*if\s*\(\s*((?<variable>\w+)\s*(==|!=|is|is\s+not)\s*null|null\s*[!=]=\s*(?<variable>\w+)|(\s*!\s*)?string\.IsNullOrEmpty\((?<variable>\w+)\))\s*\)")]
 	private static partial Regex CreateIfNullCheckRegex();
 
-	[GeneratedRegex(@"(?n)^Non-nullable (?<type>event|field|property) '(?<member>\w+)' must contain a non-null value when exiting constructor. Consider declaring the \k<type> as nullable.$")]
+	[GeneratedRegex(@"(?n)^Non-nullable (?<kind>event|field|property) '(?<member>\w+)' must contain a non-null value when exiting constructor. Consider declaring the \k<kind> as nullable.$")]
 	private static partial Regex CreateNonNullExitingConstructorRegex();
 
-	[GeneratedRegex(@"(?n)(^|\s+)event\s+(?<type>\w+(<.+?>)?)\s+(?<member>\w+)(;|$|\s)")]
+	[GeneratedRegex(@"(?n)(^|\s+)event\s+(?<type>\w+(\[\]|<.+?>)?)\s+(?<member>\w+)(;|$|\s)")]
 	private static partial Regex CreateEventMemberRegex();
 
-	[GeneratedRegex(@"(?n)^\s*((public|private|protected|internal|static|readonly|volatile)\s*)+\s+(?<type>\w+(<.+?>)?)\s+(?<member>\w+)(;|$|\s)")]
+	[GeneratedRegex(@"(?n)^\s*((public|private|protected|internal|static|readonly|volatile)\s*)+\s+(?<type>\w+(\[\]|<.+?>)?)\s+(?<member>\w+)(;|$|\s)")]
 	private static partial Regex CreateDataMemberRegex();
 
-	[GeneratedRegex(@"(?n)^\s*Nullability of reference types in type of parameter 'sender' of 'void\s+(?<type>\w+)\.(?<method>\w+\(object\s+sender,\s+\w+\s+\w+\))' doesn't match the target delegate")]
+	[GeneratedRegex(@"(?n)^\s*Nullability of reference types in type of parameter 'sender' of 'void\s+(?<type>\w+(\[\]|<.+?>)?)\.(?<method>\w+\(object\s+sender,\s+\w+\s+\w+\))' doesn't match the target delegate")]
 	private static partial Regex CreateEventSenderDeclarationRegex();
 
 	[GeneratedRegex(@"(?n)^\s*return\s*(?<name>\w+)\s*;\s*")]
 	private static partial Regex CreateReturnNameRegex();
 
-	[GeneratedRegex(@"(?n)^\s*((public|private|protected|internal|static|partial)\s*)+\s+(?<type>\w+(<.+?>)?\??)\s+(?<member>\w+)(\(|$|\s)")]
+	[GeneratedRegex(@"(?n)^\s*((public|private|protected|internal|static|partial)\s*)+\s+(?<type>\w+(\[\]|<.+?>)?\??)\s+(?<member>\w+)(\(|$|\s)")]
 	private static partial Regex CreateMethodOrPropertyDeclarationRegex();
 
-	[GeneratedRegex(@"\.TryGetValue\(.*,\s*out\s+(?<type>\w+(<.+?>)?)\s+.+?\)")]
+	[GeneratedRegex(@"\.TryGetValue\(.*,\s*out\s+(?<type>\w+(\[\]|<.+?>)?)\s+.+?\)")]
 	private static partial Regex CreateTryGetValueOutRegex();
 
 	[GeneratedRegex(@"(?n)(?<function>\w+)(<.+>)?(?<open>\().*?(?<null>null).*?(?<close>\))")]
 	private static partial Regex CreateFunctionCallWithNullArgRegex();
 
-	[GeneratedRegex(@"(?<type>\w+(<.+?>)?\??)\s+(?<variable>\w+)")]
+	[GeneratedRegex(@"(?<type>\w+(\[\]|<.+?>)?\??)\s+(?<variable>\w+)")]
 	private static partial Regex CreateTypeVariableRegex();
 
 #pragma warning restore MEN002 // Line is too long
@@ -161,7 +167,7 @@ internal sealed partial class Fixer
 	#region Private Methods
 
 	private static Regex CreateDeclarationRegex(string name)
-		=> new(@$"(?n)(?<type>\w+(<.+?>)?)\s+{Regex.Escape(name)}[,\)\s]");
+		=> new(@$"(?n)(?<type>\w+(\[\]|<.+?>)?)\s+{Regex.Escape(name)}[,\)\s]");
 
 	private bool Fix(Problem problem)
 	{
@@ -318,7 +324,7 @@ internal sealed partial class Fixer
 		Match messageMatch = messageEx.Match(problem.Message);
 		if (messageMatch.Success)
 		{
-			string matchType = messageMatch.Groups["type"].Value;
+			string matchType = messageMatch.Groups["kind"].Value;
 			string member = messageMatch.Groups["member"].Value;
 			switch (matchType)
 			{
