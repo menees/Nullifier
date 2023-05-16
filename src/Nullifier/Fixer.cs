@@ -122,7 +122,7 @@ internal sealed partial class Fixer
 	private static partial Regex CreateParameterNameReferenceRegex();
 
 	// Match a "Type variable = " with a direct null literal, a null from either side of a ternary operator, an "as" operator, or an XxxOrDefault() LINQ method.
-	[GeneratedRegex(@"(?n)(^|,|\()\s*(?<type>\w+(\[\]|<.+?>)?)\s+\w+\s*=\s*(null|.*\?\s*null\s*:.*|.*\?.*:\s*null\s*|.*\s+as\s+.*|.*.(First|Single|Last)OrDefault\(.*\))(;$|,|\))")]
+	[GeneratedRegex(@"(?n)(^|,|\(|\])\s*(?<type>\w+(\[\]|<.+?>)?)\s+\w+\s*=\s*(null|.*\?\s*null\s*:.*|.*\?.*:\s*null\s*|.*\s+as\s+.*|.*.(First|Single|Last)OrDefault\(.*\))(;$|,|\))")]
 	private static partial Regex CreateNullAssignmentRegex();
 
 	[GeneratedRegex(@"(?n)^\s*(?<type>\w+(\[\]|<.+?>)?)\s+(?<variable>\w+)\s*=\s*.+;$")]
