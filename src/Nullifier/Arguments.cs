@@ -84,7 +84,7 @@ internal sealed class Arguments
 
 		commandLine.AddSwitch("verbose", "Show output for each fix that's made.", value => this.Verbose = value);
 
-		// Off by default since data members can have false positives. See comments near FixDataMembers usage in Fixer.
+		// Off by default since data members can be fixed in a variety of ways. See comments near FixDataMembers usage in Fixer.
 		commandLine.AddSwitch("fixDataMembers", "Whether fields and properties should be set to nullable.", value => this.FixDataMembers = value);
 
 		commandLine.AddSwitch("summarize", "Show summary of errors by file.", value => this.Summarize = value);

@@ -337,9 +337,12 @@ internal sealed partial class Fixer
 
 				case "field":
 				case "property":
-					// Fixing data members is off by default since the compiler can produce false positives about them.
+					// Fixing data members is off by default since marking the member as nullable may not be the best fix.
 					// For example, if a constructor calls a private helper method to initialize member fields or properties,
-					// the compiler may still complain that they're null when exiting the constructor.
+					// the compiler will still complain that they're null when exiting the constructor (CS8618). Instead of
+					// naively marking the data members as nullable here, it's often a much better fix to mark the private
+					// helper method with one or more [MemberNotNull(nameof(this.xxx))] attributes. However, that's
+					// beyond the scope of Nullifier's simple analysis capabilities.
 					if (this.arguments.FixDataMembers)
 					{
 						result = this.FixMemberDeclaration(problem, member, CreateDataMemberRegex());
