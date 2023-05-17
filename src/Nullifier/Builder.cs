@@ -57,7 +57,11 @@ internal sealed class Builder
 		}
 		else
 		{
-			this.TryEnableNullable(this.arguments.ProjectDirectory, this.arguments.ProjectFile);
+			if (this.arguments.EnableProject)
+			{
+				this.TryEnableNullable(this.arguments.ProjectDirectory, this.arguments.ProjectFile);
+			}
+
 			string logFile = Path.GetTempFileName();
 			try
 			{

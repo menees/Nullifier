@@ -38,6 +38,8 @@ internal sealed class Arguments
 
 	public bool Summarize { get; private set; }
 
+	public bool EnableProject { get; private set; }
+
 	#endregion
 
 	#region Public Methods
@@ -82,9 +84,13 @@ internal sealed class Arguments
 
 		commandLine.AddSwitch("verbose", "Show output for each fix that's made.", value => this.Verbose = value);
 
+		// Off by default since data members can have false positives. See comments near FixDataMembers usage in Fixer.
 		commandLine.AddSwitch("fixDataMembers", "Whether fields and properties should be set to nullable.", value => this.FixDataMembers = value);
 
 		commandLine.AddSwitch("summarize", "Show summary of errors by file.", value => this.Summarize = value);
+
+		// Off by default since Nullable may be enabled from Directory.Build.props or by individual #nullable enable statements.
+		commandLine.AddSwitch("enableProject", "Whether Nullable=enable should be set in the .csproj file.", value => this.EnableProject = value);
 
 		commandLine.AddFinalValidation(errors =>
 		{
