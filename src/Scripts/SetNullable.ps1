@@ -12,7 +12,10 @@
 param(
     [string] $baseFolder,
     [bool] $recursive = $true,
-    [bool] $addTodoComment = $true
+    [bool] $addTodoComment = $true,
+    [string] $context = "disable"   # Options: enable|disable|enable warnings|enable annotations|disable warnings|disable annotations.
+                                    # Docs: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/preprocessor-directives#nullable-context
+                                    # Related: https://github.com/dotnet/msbuild/issues/4391#issuecomment-545073077
 )
 
 Set-StrictMode -Version Latest
@@ -47,12 +50,12 @@ elseif (!(Test-Path $baseFolder -Type Container))
     throw "The specified base folder does not exist or is inaccessible."
 }
 
-$disableLine = "#nullable disable"
+$contextLine = "#nullable $context"
 if ($addTodoComment)
 {
-    $disableLine += " // TODO: Remove #nullable disable. [$([Environment]::UserName), $([DateTime]::Now.ToShortDateString())]"
+    $contextLine += " // TODO: Remove #nullable $context. [$([Environment]::UserName), $([DateTime]::Now.ToShortDateString())]"
 }
-$disableLine += "`r`n"
+$contextLine += "`r`n"
 
 $updateCount = 0
 $csFiles = @(Get-ChildItem -Path $baseFolder -Recurse -Filter *.cs)
@@ -71,11 +74,12 @@ foreach ($csFile in $csFiles)
     $encodingName = GetCurrentEncoding $csFilePath
     $content = Get-Content $csFilePath -Raw -Encoding $encodingName
 
-    # Skip files that already start with #nullable enable or #nullable disable.
+    # Skip files that already start with a #nullable context.
     if ($content -and !$content.StartsWith('#nullable'))
     {
-        $content = $disableLine + $content
-        Write-Host "Updating $csFilePath to use #nullable disable. Encoding is $encodingName."
+        $content = $contextLine + $content
+        $shortCsFilePath = $csFilePath.Replace($baseFolder, '').TrimStart([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+        Write-Host "Updating $shortCsFilePath to use #nullable $context. Encoding is $encodingName."
         Set-Content -Path $csFilePath -Value $content -NoNewline -Encoding $encodingName
         $updateCount++
     }
