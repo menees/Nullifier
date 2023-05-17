@@ -19,6 +19,8 @@ internal sealed partial class Fixer
 {
 	#region Private Data Members
 
+	private static readonly ISet<string> ParameterPrefixKeywords = new HashSet<string> { "out", "ref" };
+
 	private readonly IReadOnlyList<string> errors;
 	private readonly Arguments arguments;
 	private string[]? currentFileLines;
@@ -229,7 +231,8 @@ internal sealed partial class Fixer
 	{
 		bool result = false;
 
-		if (this.currentFileLines != null && typeGroup.Success)
+		// Make sure the "type" name isn't a keyword, so we don't change "out variable" into "out? variable".
+		if (this.currentFileLines != null && typeGroup.Success && !ParameterPrefixKeywords.Contains(typeGroup.Value))
 		{
 			int insertIndex = typeGroup.Index + typeGroup.Length;
 			line = line.Insert(insertIndex, "?");
