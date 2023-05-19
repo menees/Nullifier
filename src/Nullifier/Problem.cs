@@ -40,4 +40,10 @@ internal sealed class Problem
 	public string Message { get; }
 
 	#endregion
+
+	#region Public Methods
+
+	public override string ToString() => $"{Path.GetFileName(this.File)}({this.Line + 1}): {this.Code}: {this.Message}";
+
+	#endregion
 }
