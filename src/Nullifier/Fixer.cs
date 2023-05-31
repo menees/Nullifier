@@ -136,6 +136,9 @@ internal sealed partial class Fixer
 	[GeneratedRegex(@"(?n)^\s*if\s*\(\s*((?<variable>\w+)\s*(==|!=|is|is\s+not)\s*null|null\s*[!=]=\s*(?<variable>\w+)|(\s*!\s*)?string\.IsNullOrEmpty\((?<variable>\w+)\))\s*\)")]
 	private static partial Regex CreateIfNullCheckRegex();
 
+	[GeneratedRegex(@"(?n)^\s*(((?<variable>\w+)\.(ShouldBeNull|ShouldNotBeNull)\()|(Assert\.(IsNull|IsNotNull)\((?<variable>\w+)[,\)]))")]
+	private static partial Regex CreateIsNullAssertRegex();
+
 	[GeneratedRegex(@"(?n)^Non-nullable (?<kind>event|field|property) '(?<member>\w+)' must contain a non-null value when exiting constructor. Consider declaring the \k<kind> as nullable.$")]
 	private static partial Regex CreateNonNullExitingConstructorRegex();
 
@@ -281,14 +284,30 @@ internal sealed partial class Fixer
 		{
 			Regex assignment = CreateVariableAssignmentRegex();
 			Match match = assignment.Match(line);
-			const int ExpectedGroupCount = 3;
-			if (match.Success && match.Groups.Count == ExpectedGroupCount && this.GetLine(problem.Line + 1, out string? nextLine))
+
+			bool GetNonEmptyLine(int lineIndex, out string line)
 			{
-				Regex isNullCheck = CreateIfNullCheckRegex();
-				Match nextMatch = isNullCheck.Match(nextLine);
-				if (nextMatch.Success && nextMatch.Groups["variable"].Value == match.Groups["variable"].Value)
+				bool gotLine = this.GetLine(lineIndex, out string? rawLine) && rawLine.IsNotWhiteSpace();
+				line = rawLine ?? string.Empty;
+				return gotLine;
+			}
+
+			const int ExpectedGroupCount = 3;
+			if (match.Success && match.Groups.Count == ExpectedGroupCount
+				&& (GetNonEmptyLine(problem.Line + 1, out string nextLine) || GetNonEmptyLine(problem.Line + 2, out nextLine)))
+			{
+				foreach (Func<Regex> createRegex in new[] { CreateIfNullCheckRegex, CreateIsNullAssertRegex })
 				{
-					result = this.MarkTypeNullableAndSetLine(problem, line, match, match.Groups["type"]);
+					Regex isNullCheck = createRegex();
+					Match nextMatch = isNullCheck.Match(nextLine);
+					if (nextMatch.Success && nextMatch.Groups["variable"].Value == match.Groups["variable"].Value)
+					{
+						result = this.MarkTypeNullableAndSetLine(problem, line, match, match.Groups["type"]);
+						if (result)
+						{
+							break;
+						}
+					}
 				}
 			}
 		}
