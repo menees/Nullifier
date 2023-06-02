@@ -524,6 +524,9 @@ internal sealed partial class Fixer
 				string functionName = match.Groups["function"].Value;
 
 				// Try to find a matching function in the current file with at least that many args (so overloads get fixed too).
+				// We're not doing exact arg count matching since default parameter values are often used. However, since
+				// we're not doing parameter type matching either for the non-null parameters, this can lead to some false positive
+				// changes if multiple overloads exist with differing data types.
 				Regex declarationEx = CreateMethodOrPropertyDeclarationRegex();
 				Regex? argEx = null;
 				int lineIndex = 0;
