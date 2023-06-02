@@ -72,8 +72,9 @@ internal sealed class Summarizer
 
 	private string TrimProjectDirectory(string path)
 	{
-		string result = path[(this.arguments.ProjectDirectory?.Length ?? 0)..]
-			.TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+		string result = this.arguments.ProjectDirectory.IsNotEmpty() && path.StartsWith(this.arguments.ProjectDirectory, StringComparison.OrdinalIgnoreCase)
+			? path[(this.arguments.ProjectDirectory?.Length ?? 0)..].TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+			: path;
 		return result;
 	}
 
