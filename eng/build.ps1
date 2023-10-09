@@ -26,8 +26,8 @@ if ($build)
 	foreach ($configuration in $configurations)
 	{
 		# Restore NuGet packages first
-		msbuild $slnPath /p:Configuration=$configuration /t:Restore /v:$msBuildVerbosity /nologo
-		msbuild $slnPath /p:Configuration=$configuration /v:$msBuildVerbosity /nologo
+		dotnet restore $slnPath /p:Configuration=$configuration /v:$msBuildVerbosity /nologo
+		dotnet build $slnPath /p:Configuration=$configuration /v:$msBuildVerbosity /nologo
 	}
 }
 
@@ -57,10 +57,8 @@ if ($publish)
 					$profileName = [IO.Path]::GetFileNameWithoutExtension($profile)
 					Write-Host "Publishing $profileName"
 
-					# The Publish target in "C:\Program Files\dotnet\sdk\3.1.101\Sdks\Microsoft.NET.Sdk\targets\Microsoft.NET.Sdk.CrossTargeting.targets"
-					# throws an exception if the .csproj uses <TargetFrameworks>. We have to override that and force a specific <TargetFramework> instead.
 					$targetFramework = GetXmlPropertyValue $profile 'TargetFramework'
-					msbuild $slnPath /t:Publish /p:PublishProfile=$profileName /p:TargetFramework=$targetFramework /v:$msBuildVerbosity /nologo /p:Configuration=$configuration
+					dotnet publish $slnPath /p:PublishProfile=$profileName /p:TargetFramework=$targetFramework /v:$msBuildVerbosity /nologo /p:Configuration=$configuration
 
 					Remove-Item "$artifactsPath\$profileName\*.pdb"
 
