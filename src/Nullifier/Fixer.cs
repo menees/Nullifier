@@ -19,7 +19,7 @@ internal sealed partial class Fixer
 {
 	#region Private Data Members
 
-	private static readonly ISet<string> DataKeywords = new HashSet<string> { "out", "ref", "var" };
+	private static readonly ISet<string> DataKeywords = new HashSet<string> { "out", "ref", "var", "params" };
 
 	private readonly IReadOnlyList<string> errors;
 	private readonly Arguments arguments;
