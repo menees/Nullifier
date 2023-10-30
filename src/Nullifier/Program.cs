@@ -28,8 +28,25 @@ internal sealed class Program
 					{
 						Console.WriteLine($"Analyzing {builder.Errors.Count} build errors.");
 						Fixer fixer = new(builder.Errors, arguments);
+						if (arguments.ListFiles)
+						{
+							Console.WriteLine("Distinct .cs files with errors:");
+							string[] files = fixer.Problems.Select(p => p.File)
+								.Where(f => ".cs".Equals(Path.GetExtension(f), StringComparison.OrdinalIgnoreCase))
+								.Distinct(StringComparer.OrdinalIgnoreCase)
+								.Order()
+								.ToArray();
+							for (int index = 0; index < files.Length; index++)
+							{
+								Console.Write(index == 0 ? "@('" : "'");
+								Console.Write(files[index].Replace("'", "''", StringComparison.Ordinal));
+								Console.WriteLine((index == files.Length - 1) ? "')" : "',");
+							}
+						}
+
 						if (arguments.Summarize)
 						{
+							Console.WriteLine("Summarizing fixes:");
 							Summarizer summarizer = new(fixer.Problems, arguments);
 							summarizer.Summarize();
 						}

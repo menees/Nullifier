@@ -38,6 +38,8 @@ internal sealed class Arguments
 
 	public bool Summarize { get; private set; }
 
+	public bool ListFiles { get; private set; }
+
 	public bool EnableProject { get; private set; }
 
 	#endregion
@@ -88,6 +90,8 @@ internal sealed class Arguments
 		commandLine.AddSwitch("fixDataMembers", "Whether fields and properties should be set to nullable.", value => this.FixDataMembers = value);
 
 		commandLine.AddSwitch("summarize", "Show summary of errors by file.", value => this.Summarize = value);
+
+		commandLine.AddSwitch("listFiles", "Show PowerShell array of files with build errors.", value => this.ListFiles = value);
 
 		// Off by default since Nullable may be enabled from Directory.Build.props or by individual #nullable enable statements.
 		commandLine.AddSwitch("enableProject", "Whether Nullable=enable should be set in the .csproj file.", value => this.EnableProject = value);
