@@ -13,9 +13,12 @@ param(
     [string] $baseFolder,
     [bool] $recursive = $true,
     [bool] $addTodoComment = $true,
-    [string] $context = "disable"   # Options: enable|disable|enable warnings|enable annotations|disable warnings|disable annotations.
+    [string] $context = "disable",  # Options: enable|disable|enable warnings|enable annotations|disable warnings|disable annotations.
                                     # Docs: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/preprocessor-directives#nullable-context
                                     # Related: https://github.com/dotnet/msbuild/issues/4391#issuecomment-545073077
+
+	[string[]] $files = $null       # If $null or empty, this will search for .cs files under $baseFolder.
+									# If non-empty, then only these files will be updated.
 )
 
 Set-StrictMode -Version Latest
@@ -57,8 +60,16 @@ if ($addTodoComment)
 }
 $contextLine += "`r`n"
 
+if ($files)
+{
+	$csFiles = @($files | Get-ChildItem)
+}
+else
+{
+	$csFiles = @(Get-ChildItem -Path $baseFolder -Recurse -Filter *.cs)
+}
+
 $updateCount = 0
-$csFiles = @(Get-ChildItem -Path $baseFolder -Recurse -Filter *.cs)
 foreach ($csFile in $csFiles)
 {
     $csFilePath = $csFile.FullName
