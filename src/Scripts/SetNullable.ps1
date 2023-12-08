@@ -11,7 +11,6 @@
 
 param(
     [string] $baseFolder,
-    [bool] $recursive = $true,
     [bool] $addTodoComment = $true,
     [string] $context = "disable",  # Options: enable|disable|enable warnings|enable annotations|disable warnings|disable annotations.
                                     # Docs: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/preprocessor-directives#nullable-context

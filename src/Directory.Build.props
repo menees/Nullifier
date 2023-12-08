@@ -18,7 +18,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
-		<AnalysisLevel>latest-all</AnalysisLevel>
+		<AnalysisLevel>7.0</AnalysisLevel>
 
 		<RepoSrcFolder>$(MSBuildThisFileDirectory)</RepoSrcFolder>
 		<UseCustomCodeAnalyzers>true</UseCustomCodeAnalyzers>
@@ -28,7 +28,7 @@
 		<NoWarn>SA0001</NoWarn>
 
 		<!-- Make the assembly and file versions the same. -->
-		<Version>1.0.2</Version>
+		<Version>1.0.3</Version>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
